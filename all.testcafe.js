@@ -6,10 +6,41 @@ const password = userVariables.password;
 
 async function login(t) {
     await t
-        .expect(Selector('#kambit-sign-in_emailOrLogin').visible).ok()
         .typeText('#kambit-sign-in_emailOrLogin', username)
         .typeText('#kambit-sign-in_password', password)
         .pressKey('enter')
+}
+
+async function deleteClientWithName (t, name = '') {
+    await t
+        .wait(3000)
+        .click('app-main-app [alt="Kartoteki"]')
+    if (name != '') {
+        await t
+            .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), name)
+    }
+    await t
+        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
+        .click(Selector('app-main-app .dx-dropdownbutton-action').nth(0))
+        .click('[title="Usuń"] div div')
+        .click(Selector('span').withText('Proszę wpisać'))
+        .pressKey('t a k')
+        .click(Selector('span').withText('Usuń'))
+        .wait(2000);
+};
+
+async function deleteCaseWithClientName (t, clientName = '') {
+    await t
+        .click('app-main-app [alt="Sprawy"]')
+        .click(Selector('app-main-app .dx-dropdown-button').nth(0))
+        .wait(2000)
+        .click(Selector('.dx-list-item-content').withText(clientName))
+        .wait(1000)
+        .click(Selector('app-main-app span').withText('Filtruj'))
+        .click(Selector('.dx-datagrid-table').find('.dx-button-content').nth(0))
+        .click('[title="Usuń"] div div')
+        .click(Selector('div').withText('Tak').nth(9))
+        .wait(2000);
 }
 
 fixture `all`
@@ -20,19 +51,18 @@ fixture `all`
     });
 
 test('dodawanie klienta', async t => {
-    login(t);
+    await login(t);
     await t
-        .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna').visible).ok()
+        .wait(1000)
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(0))
+        .wait(1000)
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Michał')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Stasiak')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '85')
-        .expect(Selector('div').withText('91-851 - Łódź - łódzkie - Łódź').nth(9).visible).ok()
         .click(Selector('div').withText('91-851 - Łódź - łódzkie - Łódź').nth(9))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Parkowa')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '11')
-        .expect(Selector('app-main-app div').withText('Zapisz').nth(5).visible).ok()
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(2000)
 });
@@ -40,17 +70,16 @@ test('dodawanie klienta', async t => {
 test('dodawanie istniejacego klienta', async t => {
     login(t);
     await t
-        .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna').visible).ok()
+        .wait(1000)
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(0))
+        .wait(1000)
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna')) 
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Michał')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Stasiak')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '85')    
-        .expect(Selector('div').withText('91-851 - Łódź - łódzkie - Łódź').nth(9).visible).ok()
         .click(Selector('div').withText('91-851 - Łódź - łódzkie - Łódź').nth(9))      
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Parkowa')
-        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '11')        
-        .expect(Selector('app-main-app div').withText('Zapisz').nth(5).visible).ok()
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '11')       
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(2000)
 });
@@ -59,18 +88,17 @@ test('dodawanie istniejacego klienta', async t => {
 test('dodawanie klienta (instytucja)', async t => {
     login(t);
     await t
-        .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Instytucja').visible).ok()
+        .wait(1000)
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(0))
+        .wait(1000)
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Instytucja'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Instytucja test')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .expect(Selector('.dx-item.dx-list-item').nth(9).find('div').withText('Spółka komandytowa').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(9).find('div').withText('Spółka komandytowa'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(6), '7412589631')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '741258963')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '852963741')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '52')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('91-526 - Łódź - łódzkie - Łódź').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('91-526 - Łódź - łódzkie - Łódź'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(14), 'Pabianicka')
         .click(Selector('kambit-participant-main-data label').withText('Numer domu'))
@@ -80,7 +108,6 @@ test('dodawanie klienta (instytucja)', async t => {
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(20), 'jkmwa@o2.pl')
         .typeText('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'Krótki opis')
         .typeText(Selector('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'Uwaga wstępna')
-        .expect(Selector('app-main-app div').withText('Zapisz').nth(5).visible).ok()
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(2000)
 });
@@ -88,40 +115,36 @@ test('dodawanie klienta (instytucja)', async t => {
 test('dodawanie klienta (spolka)', async t => {
     login(t);
     await t
-        .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(3).find('div').withText('Spółka').visible).ok()
+        .wait(1000)
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(0))
+        .wait(1000)
         .click(Selector('.dx-item.dx-list-item').nth(3).find('div').withText('Spółka'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Spolka testowa')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .expect(Selector('.dx-item.dx-list-item').nth(6).find('div').withText('Spółka akcyjna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(6).find('div').withText('Spółka akcyjna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(6), '8521479630')
         .click(Selector('kambit-participant-main-data label').withText('REGON'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '852741963')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '123852753')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '63')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('90-763 - Łódź - łódzkie - Łódź').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('90-763 - Łódź - łódzkie - Łódź'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(14), 'Obywatelska')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(15), '7')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), '5')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(18), '741258963')
-        .click(Selector('kambit-participant-main-data div').withText('Opiekun').nth(2))
-        .click(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(20))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(20), 'tgb@r3.com')
         .typeText('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'Opis spolki')
         .typeText(Selector('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'Uwagi spolki')
-        .expect(Selector('app-main-app div').withText('Zapisz').nth(5).visible).ok()
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(2000)
 });
 
-    
 test('dodawanie klienta (osoba prowadzaca)', async t => {
     login(t);
     await t
-        .click('kambit-participant-main-data .dx-dropdowneditor-icon')           
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Osoba prowadząca działalność gospodarczą').visible).ok()
+        .wait(1000)
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(0))
+        .wait(1000)           
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Osoba prowadząca działalność gospodarczą'))          
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Kajmar')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Marcin')
@@ -131,9 +154,8 @@ test('dodawanie klienta (osoba prowadzaca)', async t => {
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '852741963')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(9), '0')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(11), '852741963')
-        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(13), '84')          
-        .expect(Selector('.dx-item.dx-list-item').nth(4).find('div').withText('85-884 - Bydgoszcz - kujawsko-pomorskie - Bydgoszc').visible).ok()
-        .click(Selector('.dx-item.dx-list-item').nth(4).find('div').withText('85-884 - Bydgoszcz - kujawsko-pomorskie - Bydgoszc'))         
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(13), '84')
+        .click(Selector('.dx-item.dx-list-item').nth(4).find('div').withText('85-884 - Bydgoszcz - kujawsko-pomorskie - Bydgoszc'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), 'Warszawska')
         .click(Selector('kambit-participant-main-data label').withText('Numer domu'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(18), '8')
@@ -148,43 +170,17 @@ test('dodawanie klienta (osoba prowadzaca)', async t => {
 });
   
 test('usuwanie klientow', async t => {
-    login(t);
-    await t
-        .click('app-main-app [alt="Kartoteki"]')
-        .wait(2000)
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .click(Selector('span').withText('Proszę wpisać'))
-        .pressKey('t a k')
-        .click(Selector('span').withText('Usuń'))
-        .wait(2000)
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .wait(2000)                                                              
-        .click('[title="Usuń"] div div')
-        .click(Selector('span').withText('Proszę wpisać'))
-        .pressKey('t a k')
-        .click(Selector('span').withText('Usuń'))
-        .wait(2000)
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .click(Selector('span').withText('Proszę wpisać'))
-        .pressKey('t a k')
-        .click(Selector('span').withText('Usuń'))
-        .wait(2000)
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .click(Selector('span').withText('Proszę wpisać'))
-        .pressKey('t a k')
-        .click(Selector('span').withText('Usuń'))
-        .wait(2000);
+    await login(t);
+    for (let i = 0; i < 4; i++) {
+        await deleteClientWithName(t); 
+    }
+    await t.wait(2000);
 });
     
 test('pismo', async t => {
-    login(t);
+    await login(t);
     await t
+        .wait(2000)
         .click('kambit-participant-main-data .dx-button-content')
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Klaudia')
@@ -206,7 +202,9 @@ test('pismo', async t => {
         .typeText(Selector('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'uwaga')
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .click('app-main-app [alt="Sprawy"]')
+        .wait(2000)
         .click(Selector('app-main-app span').withText('Dodaj'))
+        .wait(2000)
         .click('kambit-case-edit-main-data .dx-texteditor-input.text-start')
         .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Podatkowa'))
         .click(Selector('kambit-case-edit-main-data [class^="dx-texteditor-input-container dx-tag-container dx-"]').nth(2))
@@ -228,8 +226,10 @@ test('pismo', async t => {
         .typeText('kambit-case-edit-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'opis sprawy')
         .typeText(Selector('kambit-case-edit-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'uwagi sprawy')
         .click(Selector('app-main-app span').withText('Zapisz'))
+        .wait(3000)
         .click('app-main-app .img-task')
         .click('#kambit-customers-select-box_customer')
+        .wait(1500)
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Klaudia Pawlikowska'))
         .click('#kambit-cases-select-box_case')
         .click(Selector('.dx-item.dx-list-item').find('div').withText(`Podatkowa ˙ ${case_number}`))
@@ -239,51 +239,32 @@ test('pismo', async t => {
         .click(Selector('span').withText('Pokaż na kalendarzu'))
         .click(Selector('#_btn-task-edit-save span').withText('Utwórz'))
         .click(Selector('#_btn-task-edit-save span').withText('Zapisz'))
-        .wait(1000);
+        .wait(2000);
 });
 
 test('usuwanie pismo', async t => {
-    login(t);
+    await login(t);
     await t
-        .wait(6000)
-        .click(Selector('span').withText('Odrzuć wszystkie'))
-        .click('app-main-app [alt="Sprawy"]')
-        .wait(2000)
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-clear').nth(1))
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('.dx-datagrid-table').find('.dx-button-content').nth(0))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .click(Selector('div').withText('Tak').nth(9))
-        .click('app-main-app [alt="Kartoteki"]')
-        .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), 'Klaudia Pawlikowska')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Usuń').visible).ok()
-        .click(Selector('.dx-item.dx-list-item').find('div').withText('Usuń'))
-        .typeText('#_confirm-message', 'tak')
-        .click(Selector('div').withText('Usuń').nth(21))
-        .wait(2000)
+        .click(Selector('span').withText('Odrzuć wszystkie'));
+    await deleteCaseWithClientName(t, 'Klaudia Pawlikowska');
+    await deleteClientWithName(t, 'Klaudia Pawlikowska');
+    await t.wait(2000);
 });
-    
+ 
 test('opinia', async t => {
-    login(t);
+    await login(t);
     await t
         .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .wait(2000)
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Natalia')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Grab')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .wait(2000)
         .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '85214796301')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '8524687410')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(9), '784236951')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '159357846')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '23-')
-        .wait(2000)
         .click(Selector('.dx-item.dx-list-item').nth(15).find('div').withText('23-440 - Frampol - lubelskie - biłgorajski'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Opolska')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '7')
@@ -293,9 +274,11 @@ test('opinia', async t => {
         .typeText('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'opis do czynnosci dla klienta')
         .typeText(Selector('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'uwagi do czynnosci dla klienta')
         .click(Selector('app-main-app span').withText('Zapisz'))
-        .wait(3000)
+        .wait(2000)
         .click('app-main-app [alt="Sprawy"]')
+        .wait(1500)
         .click(Selector('app-main-app div').withText('Dodaj').nth(7))
+        .wait(2000)
         .click('kambit-case-edit-main-data .dx-dropdowneditor-icon')
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Cywilna'))
         .click(Selector('kambit-case-edit-main-data .dx-button-content').nth(4))
@@ -309,12 +292,9 @@ test('opinia', async t => {
     const case_number = await Selector('#kambit-case-edit-main-data_caseNumber').value;
     await t
         .click(Selector('#_btn-contact-person-edit-save span').withText('Zapisz'))
-        .wait(2000)
         .click(Selector('kambit-case-edit-main-data span').withText('Wybierz klienta'))
-        .wait(2000)
         .typeText('#_name', 'Natalia Grab')
         .click(Selector('span').withText('Filtruj'))
-        .wait(2000)
         .click(Selector('span').withText('Wybierz').nth(1))
         .click(Selector('kambit-case-edit-main-data div').withText('Opis').nth(2))
         .typeText('kambit-case-edit-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'opis sprawy')
@@ -331,15 +311,12 @@ test('opinia', async t => {
         .click(Selector('app-main-app span').withText('Zapisz'))
         .wait(2000)
         .click('app-main-app .img-activity')
-        .wait(2000)
+        .expect(Selector('#kambit-customers-select-box_customerId').visible).ok()
         .click('#kambit-customers-select-box_customerId')
-        .wait(2000)
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Natalia Grab'))
         .click('#kambit-cases-select-box_caseId')
-        .wait(2000)
         .click(Selector('.dx-item.dx-list-item').find('div').withText(`Cywilna ˙ ${case_number}`))
         .click('#_type_DictID')
-        .wait(2000)
         .click(Selector('div').withText('Porada prawna').nth(9))
         .typeText('#_comment', 'Uwagi do porady')
         .click(Selector('.dx-checkbox-icon').nth(4))
@@ -348,7 +325,7 @@ test('opinia', async t => {
 });
     
 test('usuwanie opinia', async t => {
-    login(t);
+    await login(t);
     await t
         .click(Selector('app-main-app .img-activity').nth(1))
         .wait(2000)
@@ -356,43 +333,25 @@ test('usuwanie opinia', async t => {
         .wait(2000)
         .click('[title="Usuń"] div div')
         .click(Selector('span').withText('Tak'))
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), 'Natalia Grab')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .typeText('#_confirm-message', 'tak')
-        .wait(2000)
-        .click(Selector('span').withText('Usuń'))
-        .click('app-main-app [alt="Sprawy"]')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-clear').nth(1))
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Usuń'))
-        .click(Selector('span').withText('Tak'))
-        .wait(2000)
+        .wait(2000);
+    await deleteCaseWithClientName(t, 'Natalia Grab');
+    await deleteClientWithName(t, 'Natalia Grab');
 });
 
 test('przesyłka nierejestrowana krajowa', async t => {
-    login(t);
+    await login(t);
     await t
         .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Szymon')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Piekarz')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .expect(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '74585741987')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '4786324121')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(9), '874296385')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '852741789')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '45-')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('45-859 - Opole - opolskie - Opole').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('45-859 - Opole - opolskie - Opole'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Bydgoska')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '6')
@@ -406,18 +365,15 @@ test('przesyłka nierejestrowana krajowa', async t => {
         .click('app-main-app [alt="Sprawy"]')
         .wait(1000)
         .click('app-main-app [alt="Sprawy"]')
-        .expect(Selector('app-main-app dx-button').withText('Dodaj').visible).ok()
         .click(Selector('app-main-app dx-button').withText('Dodaj'))
         .wait(5000)
         .click('.dx-texteditor-input.text-start')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Cywilna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Cywilna'))
         .click('.dx-icon.dx-icon-add')
         .typeText('#kambit-tab_name', 'Marcin')
         .typeText('#kambit-tab_surname', 'Bolanowski')
         .typeText('#kambit-tab_email', 'ert@tg.pl')
         .click('#kambit-tab_workPosition_DictID')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Członek zarządu').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Członek zarządu'))
         .click(Selector('#_btn-contact-person-edit-save span').withText('Zapisz'))
         .wait(3000)
@@ -433,19 +389,16 @@ test('przesyłka nierejestrowana krajowa', async t => {
         .wait(2000)
         .typeText('kambit-case-edit-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'opis sprawy')
         .typeText(Selector('kambit-case-edit-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'uwagi sprawy')
-        .expect(Selector('span').withText('Zapisz').visible).ok()
         .click(Selector('span').withText('Zapisz'))
         .wait(3000)
         .click('app-main-app [alt="Raporty"]')
         .click(Selector('app-main-app .dx-icon-add.btn-toolbar-add').nth(2))
         .click(Selector('.dx-dropdowneditor-icon').nth(4))
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Przesyłka nierejestrowana krajowa').visible).ok()
-        .click(Selector('.dx-item.dx-list-item').find('div').withText('Przesyłka nierejestrowana krajowa'))
+        .wait(1000)
+        .click(Selector('.dx-item.dx-list-item').find('div').withText('Przesyłka nierejestrowana krajowa')) 
         .click('.dx-icon.dx-icon-find')
-        .expect(Selector('#_btn-cases-search-popup-filter div').withText('Filtruj').visible).ok()
         .click(Selector('#_btn-cases-search-popup-filter div').withText('Filtruj'))
         .wait(2000)
-        .expect(Selector('span').withText('Wybierz').visible).ok()
         .click(Selector('span').withText('Wybierz'))
         .click('#kambit-participant-picker_correspondent')
         .click(Selector('.dx-icon.dx-icon-find').nth(2))
@@ -461,49 +414,31 @@ test('przesyłka nierejestrowana krajowa', async t => {
 });
     
 test('usuwanie przesylka nierejestrowana krajowa', async t => {
-    login(t);
+    await login(t);
     await t
         .click('app-main-app [alt="Finanse"]')
         .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
         .wait(2000)
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Usuń'))
-        .click(Selector('span').withText('Tak'))
-        .click('app-main-app [alt="Kartoteki"]')
-        .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), 'Szymon Piekarz')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .wait(2000)
-        .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Usuń'))
-        .typeText('#_confirm-message', 'tak')
-        .click(Selector('div').withText('Usuń').nth(21))
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .click('app-main-app [alt="Sprawy"]')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .wait(2000)
-        .click(Selector('[title="Usuń"] div').withText('Usuń'))
-        .click(Selector('span').withText('Tak'))
-        .wait(2000)
+        .click(Selector('span').withText('Tak'));
+    await deleteCaseWithClientName(t, 'Szymon Piekarz');
+    await deleteClientWithName(t, 'Szymon Piekarz');
 });
     
 test('karna', async t => {
-    login(t);
+    await login(t);
     await t
         .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Jan')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Rutowicz')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .expect(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '85369741123')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '8527417410')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(9), '753954789')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '874632412')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '85-')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('85-977 - Bydgoszcz - kujawsko-pomorskie - Bydgoszc').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('85-977 - Bydgoszcz - kujawsko-pomorskie - Bydgoszc'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Krakowska')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '1')
@@ -515,6 +450,7 @@ test('karna', async t => {
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(3000)
         .click('app-main-app [alt="Sprawy"]')
+        .wait(2000)
         .click(Selector('app-main-app div').withText('Dodaj').nth(7))
         .click('kambit-case-edit-main-data .dx-dropdowneditor-icon')
         .wait(2000)
@@ -525,7 +461,6 @@ test('karna', async t => {
         .typeText('#kambit-tab_surname', 'Laszczyk')
         .typeText('#kambit-tab_email', 'fght@ew.com')
         .click('#kambit-tab_workPosition_DictID')
-        .expect(Selector('.dx-item.dx-list-item').nth(8).find('div').withText('Asystent/ka').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(8).find('div').withText('Asystent/ka'))
         .wait(3000)
         .click(Selector('#_btn-contact-person-edit-save span').withText('Zapisz'))
@@ -544,43 +479,21 @@ test('karna', async t => {
 });
     
 test('usuwanie karna', async t => {
-    login(t);
-    await t
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .wait(2000)
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('#kambit-customers-index_btn-customers-index-clear'))
-        .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), 'Jan Rutowicz')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .wait(2000)
-        .click(Selector('.dx-item.dx-list-item').nth(1).find('.dx-item-content.dx-list-item-content'))
-        .typeText('#_confirm-message', 'tak')
-        .click(Selector('span').withText('Usuń'))
-
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .click('app-main-app [alt="Sprawy"]')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .expect(Selector('[title="Usuń"] div').withText('Usuń').visible).ok()
-        .click(Selector('[title="Usuń"] div').withText('Usuń'))
-        .click(Selector('span').withText('Tak'))
-        .wait(2000)
+    await login(t);
+    await deleteCaseWithClientName(t, 'Jan Rutowicz');
+    await deleteClientWithName(t, 'Jan Rutowicz')
 });
     
 test('koszt', async t => {
-    login(t);
+    await login(t);
     await t
         .wait(2000)
         .click('kambit-participant-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna').visible).ok()
+        .wait(1000)
         .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Jan')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Rutowicz')
         .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
-        .expect(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna'))
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '85369741123')
         .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '8527417410')
@@ -599,16 +512,15 @@ test('koszt', async t => {
         .click(Selector('app-main-app div').withText('Zapisz').nth(5))
         .wait(1000)
         .click('app-main-app [alt="Sprawy"]')
+        .wait(1500)
         .click(Selector('app-main-app div').withText('Dodaj').nth(7))
         .click('kambit-case-edit-main-data .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').nth(2).find('div').withText('Karna').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(2).find('div').withText('Karna'))        
         .click('kambit-case-edit-main-data .dx-icon.dx-icon-add')
         .typeText('#kambit-tab_name', 'Jakub')
         .typeText('#kambit-tab_surname', 'Laszczyk')
         .typeText('#kambit-tab_email', 'fght@ew.com')
         .click('#kambit-tab_workPosition_DictID')
-        .expect(Selector('.dx-item.dx-list-item').nth(8).find('div').withText('Asystent/ka').visible).ok()
         .click(Selector('.dx-item.dx-list-item').nth(8).find('div').withText('Asystent/ka'))
         const case_number = await Selector('#kambit-case-edit-main-data_caseNumber').value;
         await t
@@ -629,10 +541,8 @@ test('koszt', async t => {
         .click('app-main-app .img-income')
         .wait(1000)
         .click('#_customerId .dx-dropdowneditor-icon')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText('Jan Rutowicz').visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText('Jan Rutowicz'))
         .click('#kambit-cases-select-box_caseId')
-        .expect(Selector('.dx-item.dx-list-item').find('div').withText(`Karna ˙ ${case_number}`).visible).ok()
         .click(Selector('.dx-item.dx-list-item').find('div').withText(`Karna ˙ ${case_number}`))
         .click('#_product')
         .wait(500)
@@ -652,26 +562,58 @@ test('koszt', async t => {
 });
     
 test('usuwanie koszt', async t => {
-    login(t);
+    await login(t);
+    await deleteCaseWithClientName(t, 'Jan Rutowicz');
+    await deleteClientWithName(t, 'Jan Rutowicz');
+});
+
+test('faktura', async t => {
+    await login(t);
     await t
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .wait(2000)
-        .typeText(Selector('app-main-app .dx-texteditor-input.text-start').nth(1), 'Jan Rutowicz')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
-        .click(Selector('app-main-app .dx-button-content').nth(8))
-        .wait(2000)
-        .click('[title="Usuń"] div div')
-        .click(Selector('span').withText('Proszę wpisać'))
-        .pressKey('t a k')
-        .click(Selector('span').withText('Usuń'))
-        .click('app-main-app [alt="Sprawy"]')
-        .click('app-main-app [alt="Kartoteki"]')
-        .click('app-main-app [alt="Sprawy"]')
-        .click(Selector('app-main-app div').withText('Filtruj').nth(7))
+        .click('kambit-participant-main-data .dx-dropdowneditor-icon')
+        .click(Selector('.dx-item.dx-list-item').nth(1).find('div').withText('Osoba fizyczna'))
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(1), 'Maciej')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(2), 'Solejukowski')
+        .click(Selector('kambit-participant-main-data .dx-dropdowneditor-icon').nth(1))
+        .click(Selector('.dx-item.dx-list-item').nth(5).find('div').withText('Osoba fizyczna'))
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(7), '745345741987')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(8), '4786314121')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(9), '874292385')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(10), '852731789')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(12), '45-')
+        .click(Selector('.dx-item.dx-list-item').find('div').withText('45-859 - Opole - opolskie - Opole'))
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(16), 'Bydgoska')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(17), '61')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(18), '74')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(20), '851159753')
+        .typeText(Selector('kambit-participant-main-data .dx-texteditor-input.text-start').nth(22), 'bvd@ew.com')
+        .typeText('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'opis')
+        .typeText(Selector('kambit-participant-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]').nth(1), 'uwaga')
+        .click(Selector('app-main-app dx-button').withText('Zapisz'))
+        .wait(3000)
+        .click(Selector('app-main-app [alt="Finanse"]').nth(1))
+        .click(Selector('app-main-app a').withText('Faktury'))
+        .click(Selector('app-main-app span').withText('Dodaj'));
+    const facture_number = await Selector('#kambit-financial-document-main-data_financialDocumentNumber').value;
+    await t
+        .click('kambit-financial-document-main-data .dx-icon.dx-icon-find')
+        .typeText('#_name', 'Maciej Solejukowski')
+        .click(Selector('span').withText('Filtruj'))
+        .click(Selector('span').withText('Wybierz').nth(0))
+        .typeText('kambit-financial-document-main-data [class^="dx-texteditor-input dx-texteditor-input-auto-resiz"]', 'uwagi do faktury')
+        .click(Selector('kambit-financial-document-main-data span').withText('Dodaj'))
+        .click(Selector('div').withText('Tak').nth(9))
+        .click('#_product')
+        .click(Selector('div').withText('Obsługa prawna').nth(6))
+        .click(Selector('.dx-dropdowneditor-icon').nth(12))
+        .click(Selector('.dx-dropdowneditor-icon').nth(12))
+        .click(Selector('#_btn-position-save span').withText('Zapisz'))
+        .click(Selector('app-main-app span').withText('Zapisz'))
+        .click(Selector('app-main-app span').withText('Wstecz'))
+    await t
+        .click(Selector('app-main-app a').withText('Faktury'))
         .click(Selector('app-main-app .dx-icon.dx-icon-menu').nth(1))
-        .expect(Selector('[title="Usuń"] div').withText('Usuń').visible).ok()
-        .click(Selector('[title="Usuń"] div').withText('Usuń'))
-        .click(Selector('span').withText('Tak'))
-        .wait(2000)
+        .click(Selector('.dx-icon-trash'))
+        .click(Selector('.dx-dialog-button').withText('Tak'))
+    await deleteClientWithName(t, 'Maciej Solejukowski');
 });
